@@ -1,11 +1,12 @@
 import { CountryFlag } from 'components/Flag';
+import { MoreOptionsDropdown, useShowMoreOptions } from 'components/MoreOptionsDropdown';
 import { TimeDisplay } from 'components/TimeDisplay';
 import TooltipWrapper from 'components/tooltips/TooltipWrapper';
 import { useFeatureFlag } from 'features/feature-flags/api';
 import { mapMovingAtom } from 'features/map/mapAtoms';
 import { useGetCanonicalUrl } from 'hooks/useGetCanonicalUrl';
 import { useSetAtom } from 'jotai';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft, Ellipsis, Info } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { getCountryName, getFullZoneName, getZoneName } from 'translation/translation';
@@ -29,7 +30,7 @@ function getCurrentUrl({ zoneId }: { zoneId: ZoneKey }) {
   return url;
 }
 
-export default function ZoneHeaderTitle({ zoneId }: ZoneHeaderTitleProps) {
+export default function ZoneHeaderTitle({ zoneId, isEstimated }: ZoneHeaderTitleProps) {
   const zoneName = getZoneName(zoneId);
   const zoneNameFull = getFullZoneName(zoneId);
   const showTooltip = zoneName !== zoneNameFull || zoneName.length >= MAX_TITLE_LENGTH;
@@ -44,6 +45,7 @@ export default function ZoneHeaderTitle({ zoneId }: ZoneHeaderTitleProps) {
 
   const onNavigateBack = () => setIsMapMoving(false);
   const shareUrl = getCurrentUrl({ zoneId });
+  const showMoreOptions = useShowMoreOptions();
 
   return (
     <div className="flex w-full items-center pl-2 pr-3 pt-2">
@@ -88,7 +90,14 @@ export default function ZoneHeaderTitle({ zoneId }: ZoneHeaderTitleProps) {
         </div>
         <TimeDisplay className="whitespace-nowrap text-sm" />
       </div>
-      {isShareButtonEnabled && <ShareButton shareUrl={shareUrl} />}
+      {isShareButtonEnabled &&
+        (showMoreOptions ? (
+          <MoreOptionsDropdown id="zone" shareUrl={shareUrl} isEstimated={isEstimated}>
+            <Ellipsis />
+          </MoreOptionsDropdown>
+        ) : (
+          <ShareButton shareUrl={shareUrl} />
+        ))}
     </div>
   );
 }
